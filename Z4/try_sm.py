@@ -1,11 +1,14 @@
 import pandas as pd
 import numpy as np
 from sklearn.impute import SimpleImputer
-from sklearn.decomposition import PCA
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import f1_score
 from sklearn.preprocessing import LabelEncoder
+from sklearn.decomposition import PCA
+from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, GradientBoostingClassifier, StackingClassifier, VotingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.metrics import f1_score
 import sys
+
 
 train_path = sys.argv[1]
 test_path = sys.argv[2]
@@ -47,3 +50,19 @@ y_pred_test = rf_classifier.predict(X_test)
 f1_macro_test = f1_score(y_test, y_pred_test, average='macro')
 
 print(f1_macro_test)
+
+
+# def evaluate_model(model, X_train, y_train, X_test, y_test):
+#     model.fit(X_train, y_train)
+#     y_pred_test = model.predict(X_test)
+#     f1_macro_test = f1_score(y_test, y_pred_test, average='macro')
+#     return f1_macro_test
+#
+# # Voting
+# voting_model = VotingClassifier(estimators=[
+#     ('rf', RandomForestClassifier(n_estimators=100, random_state=42)),
+#     ('gb', GradientBoostingClassifier(n_estimators=100, random_state=42)),
+#     ('svc', SVC(kernel='linear', probability=True))
+# ], voting='soft')
+# f1_voting = evaluate_model(voting_model, X_train, y_train, X_test, y_test)
+# print(f'Voting F1 Score: {f1_voting}')
