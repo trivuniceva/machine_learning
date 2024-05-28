@@ -15,8 +15,6 @@ train_path = sys.argv[1]
 train_data = pd.read_csv(train_path)
 
 
-
-
 # Drop non-numeric columns and handle missing values
 # numeric_data = train_data.select_dtypes(include=[np.number])
 # imputer = SimpleImputer(strategy='mean')
