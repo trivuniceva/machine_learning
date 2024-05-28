@@ -42,6 +42,7 @@ def detect_outliers_zscore(data):
         outliers.extend(data.index[z_scores.abs() > threshold])
     return list(set(outliers))
 
+
 def standardize_data(train_data, test_data):
     train_mean = train_data.mean()
     train_std = train_data.std()

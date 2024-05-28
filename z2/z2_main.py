@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 import sys
 import pandas as pd
 import numpy as np
@@ -120,4 +118,3 @@ if __name__ == "__main__":
     train_file = sys.argv[1]
     test_file = sys.argv[2]
     main(train_file, test_file)
->>>>>>> Stashed changes
