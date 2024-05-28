@@ -12,7 +12,7 @@ train_path = sys.argv[1]
 
 data = pd.read_csv(train_path)
 
-
+print(data)
 
 
 
