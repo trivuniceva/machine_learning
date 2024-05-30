@@ -69,4 +69,3 @@ y_test_pred = gmm.predict(test_features_scaled)
 v_measure_test = v_measure_score(test_imputed['region'], y_test_pred)
 print(f'V Measure Score on Test Data: {v_measure_test}')
 
-
