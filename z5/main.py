@@ -31,8 +31,6 @@ def detect_outliers_zscore(df, features, threshold=3):
 data = pd.read_csv(train_path)
 
 print(data.isnull().sum())
-features = ['Population', 'GDP per Capita', 'Urban Population', 'Life Expectancy', 'Surface Area', 'Literacy Rate']
-
 
 knn_imputer = KNNImputer(n_neighbors=5)
 data_imputed = knn_imputer.fit_transform(data.drop(columns=['region']))
