@@ -77,6 +77,14 @@ plt.legend()
 plt.show()
 
 data_without_outliers = data.drop(outlier_indices)
+data_imputed = data_imputed.drop(outlier_indices)
 
 print("Podaci bez outlier-a:")
 print(data_without_outliers.head())
+
+
+X_train, X_val, y_train, y_val = train_test_split(data_without_outliers, data_imputed['region'], test_size=0.2, random_state=42)
+
+
+
+
