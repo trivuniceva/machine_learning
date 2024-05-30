@@ -44,31 +44,29 @@ y_val_pred = gmm.predict(X_val)
 v_measure = v_measure_score(y_val, y_val_pred)
 print(f'V Measure Score on Validation Data: {v_measure}')
 
+
 # Učitavanje test podataka
 test_data = pd.read_csv('test.csv')
-
-# Čuvanje kolone 'region' za kasniju upotrebu
-regions_test = test_data['region']
-
-# Uklanjanje kolone 'region' pre primene KNN imputera
-test_data = test_data.drop(columns=['region'])
 
 # Provera nedostajućih vrednosti u test podacima
 print(test_data.isnull().sum())
 
 # KNN imputacija za popunjavanje nedostajućih vrednosti u test podacima
-test_data_imputed = knn_imputer.transform(test_data)
-test_data_imputed = pd.DataFrame(test_data_imputed, columns=test_data.columns)
+test_imputed = knn_imputer.transform(test_data.drop(columns=['region']))
+test_imputed = pd.DataFrame(test_imputed, columns=test_data.columns[1:])
 
 # Dodavanje kolone 'region' nazad
-test_data_imputed['region'] = regions_test
+test_imputed['region'] = test_data['region']
 
 # Normalizacija test podataka
-test_features = scaler.transform(test_data_imputed.drop(columns=['region']))
+test_features = test_imputed.drop(columns=['region'])
+test_features_scaled = scaler.transform(test_features)
 
-# Predikcija klastera na test podacima
-test_clusters = gmm.predict(test_features)
+# Predikcija klastera na test skupu
+y_test_pred = gmm.predict(test_features_scaled)
 
-# Evaluacija modela na test podacima
-v_measure_test = v_measure_score(test_data_imputed['region'], test_clusters)
+# Evaluacija modela na test skupu
+v_measure_test = v_measure_score(test_imputed['region'], y_test_pred)
 print(f'V Measure Score on Test Data: {v_measure_test}')
+
+
