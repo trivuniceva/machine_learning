@@ -42,3 +42,5 @@ data_imputed['region'] = data['region']
 
 print(data_imputed.isnull().sum())
 
+
+
