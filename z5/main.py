@@ -1,74 +1,46 @@
 import pandas as pd
 import numpy as np
-from sklearn.impute import SimpleImputer
-from sklearn.decomposition import PCA
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import f1_score
-from sklearn.preprocessing import LabelEncoder
-import sys
-import seaborn as sns
-import matplotlib.pyplot as plt
+from sklearn.impute import KNNImputer
+from sklearn.preprocessing import StandardScaler
+from sklearn.mixture import GaussianMixture
+from sklearn.metrics import v_measure_score
+from sklearn.model_selection import train_test_split
+from scipy import stats
 
-train_path = sys.argv[1]
-# test_path = sys.argv[2]
+data = pd.read_csv('train.csv')
 
-train_data = pd.read_csv(train_path)
+print(data.isnull().sum())
+
+knn_imputer = KNNImputer(n_neighbors=5)
+data_imputed = knn_imputer.fit_transform(data.drop(columns=['region']))
+data_imputed = pd.DataFrame(data_imputed, columns=data.columns[1:])
+
+data_imputed['region'] = data['region']
+
+print(data_imputed.isnull().sum())
+
+scaler = StandardScaler()
+features = data_imputed.drop(columns=['region'])
+features_scaled = scaler.fit_transform(features)
+
+z_scores = np.abs(stats.zscore(features_scaled))
+outliers = np.where(z_scores > 3)
+features_cleaned = np.delete(features_scaled, outliers[0], axis=0)
+data_cleaned = data_imputed.drop(data_imputed.index[outliers[0]])
 
 
-# Drop non-numeric columns and handle missing values
-# numeric_data = train_data.select_dtypes(include=[np.number])
-# imputer = SimpleImputer(strategy='mean')
-# numeric_data_imputed = pd.DataFrame(imputer.fit_transform(numeric_data), columns=numeric_data.columns)
 
-# Function to detect outliers using IQR method
-# def detect_outliers_iqr(data):
-#     outliers = {}
-#     for column in data.columns:
-#         Q1 = data[column].quantile(0.25)
-#         Q3 = data[column].quantile(0.75)
-#         IQR = Q3 - Q1
-#         lower_bound = Q1 - 1.5 * IQR
-#         upper_bound = Q3 + 1.5 * IQR
-#         outliers[column] = data[(data[column] < lower_bound) | (data[column] > upper_bound)][column]
-#     return outliers
 
-# # Detect outliers
-# outliers = detect_outliers_iqr(numeric_data_imputed)
-#
-# # Visualize the outliers using box plots
-# plt.figure(figsize=(15, 10))
-# for i, column in enumerate(numeric_data_imputed.columns, 1):
-#     plt.subplot(len(numeric_data_imputed.columns) // 3 + 1, 3, i)
-#     sns.boxplot(y=numeric_data_imputed[column])
-#     plt.title(f'Box plot of {column}')
-#
-# plt.tight_layout()
-# plt.show()
-#
-# # Visualize outliers on scatter plots to highlight them
-# plt.figure(figsize=(15, 10))
-# for i, column in enumerate(numeric_data_imputed.columns, 1):
-#     plt.subplot(len(numeric_data_imputed.columns) // 3 + 1, 3, i)
-#     sns.scatterplot(data=numeric_data_imputed, x=range(numeric_data_imputed.shape[0]), y=column, label='Data')
-#     if not outliers[column].empty:
-#         sns.scatterplot(x=outliers[column].index, y=outliers[column], color='red', label='Outliers', marker='o')
-#     plt.title(f'Scatter plot of {column} with Outliers')
-#     plt.legend()
-#
-# plt.tight_layout()
-# plt.show()
-#
-#
-# numeric_data = train_data.select_dtypes(include=[np.number])
-# imputer = SimpleImputer(strategy='mean')
-# numeric_data_imputed = pd.DataFrame(imputer.fit_transform(numeric_data), columns=numeric_data.columns)
 
-# Compute the correlation matrix
-correlation_matrix = numeric_data_imputed.corr()
 
-# Visualize the correlation matrix
-# plt.figure(figsize=(10, 8))
-# sns.heatmap(correlation_matrix, annot=True, fmt='.2f', cmap='coolwarm', vmin=-1, vmax=1)
-# plt.title('Correlation Matrix')
-# plt.show()
 
+
+X_train, X_val, y_train, y_val = train_test_split(features_cleaned, data_cleaned['region'], test_size=0.2, random_state=42)
+
+gmm = GaussianMixture(n_components=4, random_state=42)
+gmm.fit(X_train)
+
+y_val_pred = gmm.predict(X_val)
+
+v_measure = v_measure_score(y_val, y_val_pred)
+print(f'V Measure Score on Validation Data: {v_measure}')
