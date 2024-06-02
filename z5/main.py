@@ -40,9 +40,9 @@ from sklearn.neighbors import LocalOutlierFactor
 from sklearn.ensemble import IsolationForest
 from sklearn.cluster import DBSCAN
 
-lof = LocalOutlierFactor()
-outliers_lof = lof.fit_predict(features_scaled)
-outliers = np.where(outliers_lof == -1)
+isoforest = IsolationForest()
+outliers_isoforest = isoforest.fit_predict(features_scaled)
+outliers = np.where(outliers_isoforest == -1)
 
 
 # Originalni podaci
