@@ -30,13 +30,10 @@ outliers = np.where(z_scores > 3)
 features_cleaned = np.delete(features_scaled, outliers[0], axis=0)
 data_cleaned = data_imputed.drop(data_imputed.index[outliers[0]])
 
-# Izdvajanje numeričkih atributa pre izračunavanja korelacije
 data_cleaned_numeric = data_cleaned.select_dtypes(include=[np.number])
 
-# Računanje matrice korelacije nad numeričkim podacima
 correlation_matrix = data_cleaned_numeric.corr().abs()
 
-# Izbor kolona sa visokom korelacijom
 threshold = 0.8
 upper_tri = correlation_matrix.where(np.triu(np.ones(correlation_matrix.shape), k=1).astype(np.bool_))
 
@@ -62,7 +59,7 @@ best_gmm = clf.best_estimator_
 y_val_pred = best_gmm.predict(X_val)
 
 v_measure = v_measure_score(y_val, y_val_pred)
-print(f'V Measure Score on Validation Data: {v_measure}')
+# print(f'V Measure Score on Validation Data: {v_measure}')
 
 test_data = pd.read_csv(test_path)
 
@@ -80,7 +77,6 @@ test_cleaned = test_imputed.drop(test_imputed.index[outliers_test[0]])
 
 y_test_pred = best_gmm.predict(test_features_cleaned)
 
-# Mapiranje klastere na regione
 cluster_mapping = {0: 'europe', 1: 'africa', 2: 'asia', 3: 'americas'}
 y_test_pred_mapped = [cluster_mapping.get(cluster, 'unknown') for cluster in y_test_pred]
 
