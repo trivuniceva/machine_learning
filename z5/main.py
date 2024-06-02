@@ -40,9 +40,9 @@ from sklearn.neighbors import LocalOutlierFactor
 from sklearn.ensemble import IsolationForest
 from sklearn.cluster import DBSCAN
 
-isoforest = IsolationForest()
-outliers_isoforest = isoforest.fit_predict(features_scaled)
-outliers = np.where(outliers_isoforest == -1)
+dbscan = DBSCAN()
+outliers_dbscan = dbscan.fit_predict(features_scaled)
+outliers = np.where(outliers_dbscan == -1)
 
 
 # Originalni podaci
@@ -101,7 +101,7 @@ best_gmm = clf.best_estimator_
 y_val_pred = best_gmm.predict(X_val)
 
 v_measure = v_measure_score(y_val, y_val_pred)
-# print(f'V Measure Score on Validation Data: {v_measure}')
+print(f'V Measure Score on Validation Data: {v_measure}')
 
 test_data = pd.read_csv(test_path)
 
