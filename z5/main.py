@@ -1,12 +1,13 @@
 import pandas as pd
 import numpy as np
 from sklearn.impute import KNNImputer
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import v_measure_score
 from sklearn.model_selection import train_test_split, GridSearchCV
 from scipy import stats
+import matplotlib.pyplot as plt
 import sys
 
 train_path = sys.argv[1]
@@ -20,6 +21,14 @@ data_imputed = pd.DataFrame(data_imputed, columns=data.columns[1:])
 
 data_imputed['region'] = data['region']
 
+# Pretvaranje regiona u numeričke vrednosti
+region_mapping = {'europe': 0, 'africa': 1, 'asia': 2, 'americas': 3}
+data_imputed['region'] = data_imputed['region'].map(region_mapping)
+
+scaler = StandardScaler()
+features = data_imputed.drop(columns=['region'])
+features_scaled = scaler.fit_transform(features)
+
 scaler = StandardScaler()
 features = data_imputed.drop(columns=['region'])
 features_scaled = scaler.fit_transform(features)
@@ -27,8 +36,42 @@ features_scaled = scaler.fit_transform(features)
 z_scores = np.abs(stats.zscore(features_scaled))
 outliers = np.where(z_scores > 3)
 
+# Originalni podaci
+plt.figure(figsize=(10, 7))
+pca = PCA(n_components=2)
+pca_components = pca.fit_transform(features_scaled)
+plt.scatter(pca_components[:, 0], pca_components[:, 1], c=data_imputed['region'], cmap='viridis', s=50, alpha=0.7)
+plt.xlabel('PCA1')
+plt.ylabel('PCA2')
+plt.title('Originalni podaci')
+plt.colorbar(label='Region')
+plt.show()
+
+# Podaci sa outlier-ima
+plt.figure(figsize=(10, 7))
+pca_components_outliers = pca.transform(features_scaled[outliers[0]])
+plt.scatter(pca_components[:, 0], pca_components[:, 1], c=data_imputed['region'], cmap='viridis', s=50, alpha=0.7, label='Inliers')
+plt.scatter(pca_components_outliers[:, 0], pca_components_outliers[:, 1], c='red', s=100, alpha=0.7, label='Outliers')
+plt.xlabel('PCA1')
+plt.ylabel('PCA2')
+plt.title('Podaci sa outlier-ima')
+plt.colorbar(label='Region')
+plt.legend()
+plt.show()
+
+# Podaci nakon uklanjanja outlier-a
 features_cleaned = np.delete(features_scaled, outliers[0], axis=0)
 data_cleaned = data_imputed.drop(data_imputed.index[outliers[0]])
+
+plt.figure(figsize=(10, 7))
+pca_components_cleaned = pca.transform(features_cleaned)
+plt.scatter(pca_components_cleaned[:, 0], pca_components_cleaned[:, 1], c=data_cleaned['region'], cmap='viridis', s=50, alpha=0.7)
+plt.xlabel('PCA1')
+plt.ylabel('PCA2')
+plt.title('Podaci nakon uklanjanja outlier-a')
+plt.colorbar(label='Region')
+plt.show()
+
 
 pca = PCA(n_components=4)
 features_pca = pca.fit_transform(features_cleaned)
