@@ -33,8 +33,17 @@ scaler = StandardScaler()
 features = data_imputed.drop(columns=['region'])
 features_scaled = scaler.fit_transform(features)
 
-z_scores = np.abs(stats.zscore(features_scaled))
-outliers = np.where(z_scores > 3)
+# z_scores = np.abs(stats.zscore(features_scaled))
+# outliers = np.where(z_scores > 3)
+
+from sklearn.neighbors import LocalOutlierFactor
+from sklearn.ensemble import IsolationForest
+from sklearn.cluster import DBSCAN
+
+lof = LocalOutlierFactor()
+outliers_lof = lof.fit_predict(features_scaled)
+outliers = np.where(outliers_lof == -1)
+
 
 # Originalni podaci
 plt.figure(figsize=(10, 7))
