@@ -30,6 +30,19 @@ outliers = np.where(z_scores > 3)
 features_cleaned = np.delete(features_scaled, outliers[0], axis=0)
 data_cleaned = data_imputed.drop(data_imputed.index[outliers[0]])
 
+# Izdvajanje numeričkih atributa pre izračunavanja korelacije
+data_cleaned_numeric = data_cleaned.select_dtypes(include=[np.number])
+
+# Računanje matrice korelacije nad numeričkim podacima
+correlation_matrix = data_cleaned_numeric.corr().abs()
+
+# Izbor kolona sa visokom korelacijom
+threshold = 0.8
+upper_tri = correlation_matrix.where(np.triu(np.ones(correlation_matrix.shape), k=1).astype(np.bool_))
+
+to_drop = [column for column in upper_tri.columns if any(upper_tri[column] > threshold)]
+data_cleaned.drop(to_drop, axis=1, inplace=True)
+
 pca = PCA(n_components=4)
 features_pca = pca.fit_transform(features_cleaned)
 
